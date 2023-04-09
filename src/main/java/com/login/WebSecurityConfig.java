@@ -1,7 +1,7 @@
 /*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+* Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+* Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+*/
 package com.login;
 
 import org.springframework.context.annotation.*;
@@ -11,7 +11,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.*;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.*;
+
 /**
  *
  * @author those
@@ -45,19 +45,25 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Override
-protected void configure(HttpSecurity http) throws Exception {
-    http.authorizeRequests()
-        .antMatchers("/").hasAnyAuthority("USER", "MODERATOR", "ADMIN")
-        .antMatchers("/new").hasAnyAuthority("MODERATOR", "ADMIN")
-        .antMatchers("/edit/**").hasAnyAuthority("MODERATOR", "ADMIN")
-        .antMatchers("/delete/**").hasAuthority("ADMIN")
-        .anyRequest().authenticated()
-        .and()
-        .formLogin().permitAll()
-        .and()
-        .logout().permitAll()
-        .and()
-        .exceptionHandling().accessDeniedPage("/403");
-}
+    protected void configure(HttpSecurity http) throws Exception {
+        http.authorizeRequests()
+                .antMatchers("/").hasAnyAuthority("USER", "MODERATOR", "ADMIN")
+                .antMatchers("/users/add").hasAuthority("ADMIN")
+                .antMatchers("/users/delete/**").hasAuthority("ADMIN")
+                .antMatchers("/hyperlinks").hasAnyAuthority("MODERATOR", "ADMIN")
+                .antMatchers("/hyperlinks/add", "/hyperlinks/edit", "/hyperlinks/delete")
+                .hasAnyAuthority("ADMIN", "MODERATOR")
+                .antMatchers("/favorites").hasAnyAuthority("USER")
+                .antMatchers("/favorites/add").hasAnyAuthority("USER")
+                .antMatchers("/favorites/remove").hasAnyAuthority("USER")
+
+                .anyRequest().authenticated()
+                .and()
+                .formLogin().permitAll()
+                .and()
+                .logout().permitAll()
+                .and()
+                .exceptionHandling().accessDeniedPage("/403");
+    }
 
 }

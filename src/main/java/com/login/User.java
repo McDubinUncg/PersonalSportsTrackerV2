@@ -69,4 +69,7 @@ public class User {
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
     }
+    public Set<Role> getRoles() {
+        return roles;
+    }
 }
