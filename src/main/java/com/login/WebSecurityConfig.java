@@ -1,7 +1,7 @@
 /*
 * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
 * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
-*/
+ */
 package com.login;
 
 import org.springframework.context.annotation.*;
@@ -51,12 +51,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/users/add").hasAuthority("ADMIN")
                 .antMatchers("/users/delete/**").hasAuthority("ADMIN")
                 .antMatchers("/hyperlinks").hasAnyAuthority("MODERATOR", "ADMIN")
-                .antMatchers("/hyperlinks/add", "/hyperlinks/edit", "/hyperlinks/delete")
-                .hasAnyAuthority("ADMIN", "MODERATOR")
+                .antMatchers("/hyperlinks/add", "/hyperlinks/edit", "/hyperlinks/delete").hasAnyAuthority("ADMIN", "MODERATOR")
                 .antMatchers("/favorites").hasAnyAuthority("USER")
                 .antMatchers("/favorites/add").hasAnyAuthority("USER")
                 .antMatchers("/favorites/remove").hasAnyAuthority("USER")
-
                 .anyRequest().authenticated()
                 .and()
                 .formLogin().permitAll()
