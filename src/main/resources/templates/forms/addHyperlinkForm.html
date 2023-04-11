@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/static/style.css">
+    <title>Add Hyperlink</title>
 </head>
 
 <body>
@@ -34,35 +35,14 @@
             </ul>
         </div>
     </nav>
-
-
-    <div>
-        <div class="container-left" style="margin-left: 20px;">
-            <div class="row">
-                <div id="favorites" class="col-md-3">
-                    <h3 class="text-center">Favorite Teams</h3>
-                    <ul class="list-group">
-                        <li class="list-group-item">Team 1</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-        <div class="container-right  float-right" id="hyperlink-box">
-            <div id="links" class="col-md-3">
-                <h3 class="text-center">Links</h3>
-                <div th:each="hyperlink : ${hyperlinks}">
-                    <a th:href="${hyperlink.url}" th:text="${hyperlink.name}"></a>
-                    <span th:if="${hasAuthority('ADMIN','MODERATOR')}">
-                        <a th:href="@{/hyperlinks/add/{id}(id=${hyperlink.id})}">Add</a>
-                        <a th:href="@{/hyperlinks/edit/{id}(id=${hyperlink.id})}">Edit</a>
-                        <a th:href="@{/hyperlinks/delete/{id}(id=${hyperlink.id})}">Delete</a>
-                    </span>
-                </div>
-            </div>
-        </div>
-    </div>
-
-
+    <form action="hyperlink/add/{id}" method = "post">
+        <input type="hidden" id="id" name="id" th:value="${hyperlink.id}"></form>
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required>
+        <label for="url">URL:</label>
+        <input type="url" id="url" name="url" required>
+        <button type="submit">Add Hyperlink</button>
+    </form>
 </body>
 
 </html>
