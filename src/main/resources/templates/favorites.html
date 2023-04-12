@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">>
+    <!DOCTYPE html>
+    <head>
+        <title>Favorite Teams</title>
+        <style>
+            body {
+                background-color: lightgrey;
+                color: black;
+            }
+
+            .container-left,
+            .container-right {
+                display: inline-block;
+                width: 48%;
+                vertical-align: top;
+            }
+
+            .container-left {
+                margin-right: 2%;
+            }
+
+            .container-right {
+                margin-left: 2%;
+            }
+
+            .wrapper {
+                display: flex;
+                justify-content: space-between;
+                margin-top: 50px;
+            }
+
+            .team-container,
+            .review-container {
+                width: 48%;
+            }
+
+            .w3-ul {
+                list-style: none;
+                padding-left: 0;
+            }
+            .hide {
+                display: none;
+            }
+
+            .show {
+                display: block;
+            }
+
+            .textButton {
+                border: none;
+                background-color: transparent;
+                text-decoration: underline;
+            }
+        </style>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    </head>
+    <body>
+        <h1>My Favorite Teams</h1>
+        <form>
+            <label for="searchBar">Search:</label>
+            <input type="text" id="searchBar" />
+            <button type="button" id="searchButton">Search</button>
+        </form>
+        <ul class="list-group" id="team-list"></ul>
+
+        <script th:inline="javascript">
+            /*<![CDATA[*/
+            let favoriteTeams = [[${favoriteTeamList}]]
+            console.log(favoriteTeams)
+            /*]]>*/
+
+            let teams = [];
+
+            async function getTeams(searchTerm) {
+                try {
+                    const response = await fetch('http://site.api.espn.com/apis/site/v2/sports/football/nfl/teams');
+                    if (!response.ok) {
+                        throw new Error('HTTP error');
+                    }
+                    const data = await response.json();
+                    let teams = data['sports'][0]['leagues'][0]['teams'];
+                    if (searchTerm) {
+                        teams = teams.filter((team) => {
+                            const lowerCaseTeamName = team.team.displayName.toLowerCase();
+                            return lowerCaseTeamName.includes(searchTerm.toLowerCase());
+                        })
+                    }
+                    return teams;
+                } catch (error) {
+                    console.error(error);
+                    throw error;
+                }
+            }
+
+            function showLinks(id) {
+                const links = document.querySelectorAll(`.id-${id}`);
+                links.forEach((link) => {
+                    if (link.classList.contains('show')) {
+                        link.classList.replace('show', 'hide');
+                    } else {
+                        link.classList.replace('hide', 'show');
+                    }
+                });
+            }
+
+            function isFavorite(teamID) {
+                if (favoriteTeams === null)
+                    return false;
+                for (const team of favoriteTeams) {
+                    if (team.teamID == teamID)
+                        return team.id;
+                }
+                return false;
+            }
+
+            function saveFavorite(userID, teamID) {
+                fetch('http://localhost:8080/favorite-team/add', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        userID,
+                        teamID
+                    })
+                })
+                        .then(async response => {
+                            if (response.ok) {
+                                console.log(response)
+                                const id = await response.text();
+                                favoriteTeams.push({
+                                    id,
+                                    userID,
+                                    teamID
+                                })
+                                console.log(favoriteTeams);
+                                createTeamList(teams);
+                            }
+                        });
+            }
+
+            function removeFavorite(favoriteID) {
+                fetch('http://localhost:8080/favorite-team/remove/id=' + favoriteID, {
+                    method: 'GET'
+                })
+                        .then(async response => {
+                            if (response.ok) {
+                                favoriteTeams = favoriteTeams.filter(team => {
+                                    return team.id != favoriteID;
+                                });
+                                createTeamList(teams);
+                            }
+                        });
+            }
+
+            function getListItem(links, name, id) {
+                const filterTo = ["Clubhouse", "Roster", "Statistics", "Schedule"]
+
+                const linksHtml = links.filter((link) => {
+                    return filterTo.includes(link.text);
+                }).map((link) => {
+                    return `<a class="hide id-${id}" href="${link.href}">${link.text}</a>`
+                }).join('');
+
+                const favoriteID = isFavorite(id);
+
+                const buttonHtml = `<button type="button" class="textButton" href="#" onclick="showLinks('${id}')">${name}</button>`;
+                const saveFavoriteHtml = `<button type="button" class="textButton" href="#" onclick="saveFavorite(1, ${id})" >Save To Favorites</button>`;
+                const removeFavoriteHtml = `<button type="button" class="textButton" href="#" onclick="removeFavorite(${favoriteID})" >Remove From Favorites</button>`;
+
+                return `
+                    ${buttonHtml}
+                    ${favoriteID ? removeFavoriteHtml : saveFavoriteHtml}
+                    ${linksHtml}
+                    `
+            }
+
+            // Display the initial list of teams
+            function createTeamList(teams) {
+                const teamList = document.getElementById('team-list');
+                teamList.innerHTML = "";
+                if (teams && Array.isArray(teams)) {
+                    teams.forEach(team => {
+                        const listItem = document.createElement('li');
+                        listItem.innerHTML = getListItem(team.team.links, team.team.displayName, team.team.id);
+                        listItem.classList.add('list-group-item');
+                        teamList.appendChild(listItem);
+                    });
+                }
+            }
+
+            $(document).ready(async () => {
+                teams = await getTeams(false);
+                createTeamList(teams);
+
+                const searchBar = document.getElementById('searchBar');
+                const searchButton = document.getElementById('searchButton');
+
+                searchButton.addEventListener('click', async function () {
+                    teams = await getTeams(searchBar.value);
+                    createTeamList(teams);
+                });
+            });
+        </script>
+    </body>
+</html>
