@@ -1,4 +1,4 @@
-package com.csc340sp23.pst.user;
+package com.login;
 
 import com.login.User;
 import org.springframework.beans.factory.annotation.Autowired;

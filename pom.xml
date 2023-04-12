@@ -9,7 +9,7 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.csc340</groupId>
-    <artifactId>jpa-crud-demo</artifactId>
+    <artifactId>pst</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>pst</name>
     <description>Demo project for Spring Boot</description>

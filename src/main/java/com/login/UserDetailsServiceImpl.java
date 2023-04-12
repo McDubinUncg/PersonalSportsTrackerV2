@@ -14,7 +14,7 @@ import org.springframework.security.core.userdetails.*;
 public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Autowired
-    private UserRepository userRepository;
+    private userRepository userRepository;
 
     @Override
     public UserDetails loadUserByUsername(String username)
